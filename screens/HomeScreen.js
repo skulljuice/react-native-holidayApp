@@ -47,7 +47,7 @@ export default class HomeScreen extends React.Component {
         let data = [];
         snapshot.forEach(doc => {
           console.log(doc.id, '=>', doc.data());
-          data.push(doc.data());
+          data.push({ ...doc.data(), id: doc.id });
         });
         return data.sort((a, b) => (a.added_at > b.added_at) ? 1 : ((b.added_at > a.added_at) ? -1 : 0));
       })
@@ -60,7 +60,7 @@ export default class HomeScreen extends React.Component {
   }
   handleSendButtonPress = async () => {
     const message = this.state;
-    if (message) {
+    if (message != '') {
 
       alert('Message sent!');
       let user = await AsyncStorage.getItem('user');
@@ -83,7 +83,7 @@ export default class HomeScreen extends React.Component {
         let data = [];
         snapshot.forEach(doc => {
           console.log(doc.id, '=>', doc.data());
-          data.push(...doc.data(), { id: doc.id });
+          data.push({ ...doc.data(), id: doc.id });
         });
         return data.sort((a, b) => (a.added_at > b.added_at) ? 1 : ((b.added_at > a.added_at) ? -1 : 0));
       })
@@ -100,13 +100,19 @@ export default class HomeScreen extends React.Component {
     this.setState({ showActivity: !showActivity });
   }
   handleActivityVoteUpButtonPress = (current) => {
-    let param = { id: current.id, upvote: current.upvote++, downvote: current.downvote }
+    let param = {
+      id: current.id,
+      data: { upvote: current.upvote++, downvote: current.downvote }
+    }
     backend.updateActivity(param).then(res => {
       this.getActivities();
     })
   }
   handleActivityVoteDownButtonPress = (current) => {
-    let param = { id: current.id, upvote: current.upvote, downvote: current.downvote++ }
+    let param = {
+      id: current.id,
+      data: { upvote: current.upvote, downvote: current.downvote++ }
+    }
     backend.updateActivity(param).then(res => {
       this.getActivities();
     })
@@ -132,22 +138,21 @@ export default class HomeScreen extends React.Component {
 
             {
               activityLoading ? <Text>Loading..</Text> : activities && !activityLoading && activities.map((item, index) => (
-                <View>
+                <View style={styles.containerAct}>
                   <Text>{item.name}</Text>
-                  <View>
+                  <View style={styles.row}>
                     <TouchableOpacity
                       style={styles.button}
-                      onPress={this.handleActivityVoteUpButtonPress}
-                    // disabled={isButtonDisabled}
+                      onPress={() => this.handleActivityVoteUpButtonPress(item)}
                     >
-                      <Text>Up Vote</Text>
+                      <Text>Up Vote({item.upvote})</Text>
                     </TouchableOpacity>
+                    {/* <View style={{ width: 100 }} /> */}
                     <TouchableOpacity
                       style={styles.button}
-                      onPress={this.handleActivityVoteDownButtonPress}
-                    // disabled={isButtonDisabled}
+                      onPress={() => this.handleActivityVoteDownButtonPress(item)}
                     >
-                      <Text>Down Vote</Text>
+                      <Text>Down Vote({item.downvote})</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -179,7 +184,7 @@ export default class HomeScreen extends React.Component {
             >
               <Text>Add Activity</Text>
             </TouchableOpacity>
-            {this.state.showActivity && <Activity visible={true} />}
+            {this.state.showActivity && <Activity visible={true} close={() => this.setState({ showActivity: false })} />}
           </View>
         </ScrollView>
 
@@ -190,9 +195,17 @@ export default class HomeScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  containerAct: {
+    flex: 1,
+    color: 'red',
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  row: {
+    flexDirection: 'row'
   },
   developmentModeText: {
     marginBottom: 20,

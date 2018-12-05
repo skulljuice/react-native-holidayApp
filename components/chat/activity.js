@@ -21,9 +21,9 @@ export default class Activity extends Component {
             added_at: new Date().getTime()
         }
         backend.saveActivity(param).then(res => {
-            console.log('save acivity', res);
-            this.setModalVisible(false);
+            // console.log('save acivity', res);
         })
+        this.setModalVisible(false);
     }
 
     render() {
@@ -37,7 +37,7 @@ export default class Activity extends Component {
                         Alert.alert('Modal has been closed.');
                     }}>
                     <View style={{ marginTop: 22 }}>
-                        <View style={styles.container}>
+                        <View>
                             <Text>Activity</Text>
                             <TextInput
                                 style={styles.nameInput}
@@ -49,18 +49,18 @@ export default class Activity extends Component {
                                 }}
                                 value={this.state.name}
                             />
-                            <View style={styles.row}>
+                            <View>
                                 <TouchableHighlight
-                                    style={{ width: '20' }}
+                                    // style={{ width: 30 }}
                                     onPress={() => {
-
                                         this.setModalVisible(!this.state.modalVisible);
+                                        this.props.close();
                                     }}>
                                     <Text>Close</Text>
                                 </TouchableHighlight>
-                                <View style={{ width: '100' }} />
+                                {/* <View style={{ width: 10 }} /> */}
                                 <TouchableHighlight
-                                    style={{ width: '20' }}
+                                    // style={{ width: 0 }}
                                     onPress={() => {
                                         this.saveActivity();
                                     }}>
@@ -70,13 +70,6 @@ export default class Activity extends Component {
                         </View>
                     </View>
                 </Modal>
-
-                {/* <TouchableHighlight
-                    onPress={() => {
-                        this.setModalVisible(true);
-                    }}>
-                    <Text>Show Modal</Text>
-                </TouchableHighlight> */}
             </View>
         )
     }
@@ -85,7 +78,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginTop: 10,
-        backgroundColor: '#0000',
+        // backgroundColor: '#0000',
     },
     row: {
         flexDirection: 'row'

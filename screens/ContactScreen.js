@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Text, TextInput, View, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native'
 import { ExpoLinksView } from '@expo/samples';
 
 export default class ContactScreen extends React.Component {
@@ -13,6 +13,14 @@ export default class ContactScreen extends React.Component {
         {/* Go ahead and delete ExpoLinksView and replace it with your
            * content, we just wanted to provide you with some helpful links */}
         {/* <ExpoLinksView /> */}
+        <TouchableOpacity
+          onPress={async () => {
+            // console.log(this.state.name);
+            await AsyncStorage.clear();
+          }}
+        >
+          <Text style={styles.buttonText}>Logout</Text>
+        </TouchableOpacity>
       </ScrollView>
     );
   }

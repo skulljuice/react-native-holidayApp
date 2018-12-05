@@ -30,7 +30,7 @@ class Backend {
         return db.collection('activity').add(param);
     }
     updateActivity(param) {
-        return db.collection('activity').doc(param.id).set(param);
+        return db.collection('activity').doc(param.id).set(param.data);
     }
     // send the message to the Backend
     sendMessage(message) {

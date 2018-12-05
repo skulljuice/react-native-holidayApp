@@ -138,7 +138,7 @@ export default class HomeScreen extends React.Component {
 
             {
               activityLoading ? <Text>Loading..</Text> : activities && !activityLoading && activities.map((item, index) => (
-                <View style={styles.containerAct}>
+                <View>
                   <Text>{item.name}</Text>
                   <View style={styles.row}>
                     <TouchableOpacity

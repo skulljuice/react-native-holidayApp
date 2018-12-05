@@ -14,16 +14,18 @@ export default class Activity extends Component {
         this.setState({ modalVisible: visible });
     }
     saveActivity = () => {
-        let param = {
-            name: this.state.activityName,
-            upvote: 0,
-            downvote: 0,
-            added_at: new Date().getTime()
+        if (this.state.name != '') {
+            let param = {
+                name: this.state.activityName,
+                upvote: 0,
+                downvote: 0,
+                added_at: new Date().getTime()
+            }
+            backend.saveActivity(param).then(res => {
+                // console.log('save acivity', res);
+            })
+            this.setModalVisible(false);
         }
-        backend.saveActivity(param).then(res => {
-            // console.log('save acivity', res);
-        })
-        this.setModalVisible(false);
     }
 
     render() {

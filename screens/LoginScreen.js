@@ -13,6 +13,14 @@ export default class LoginScreen extends Component {
         }
 
     }
+    login = () => {
+        let user = { loggedIn: true, name: this.state.name }
+        let m = { user: this.state.name, message: `I'm in.`, added_at: new Date().getTime() }
+        backend.sendMessage(m).then(res => {
+            console.log('ddd', res);
+        });
+        this.props.refresh(user);
+    }
     render() {
         return (
             <View style={styles.container}>
@@ -35,12 +43,7 @@ export default class LoginScreen extends Component {
                     <TouchableOpacity
                         onPress={() => {
                             // console.log(this.state.name);
-                            let user = { loggedIn: true, name: this.state.name }
-                            this.props.refresh(user);
-                            let m = { user: this.state.name, message: `I'm in.` }
-                            backend.sendMessage(m).then(res => {
-                                console.log('ddd', res);
-                            });
+                            this.login()
                         }}
                     >
                         <Text style={styles.buttonText}>Next</Text>

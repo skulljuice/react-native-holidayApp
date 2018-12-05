@@ -21,10 +21,16 @@ class Backend {
 
     // retrieve the messages from the Backend
     loadMessages() {
-        return db.collection('messages').get();
+        return db.collection('messages').orderBy('added_at', 'desc').limit(10).get();
+    }
+    loadActivites() {
+        return db.collection('activity').orderBy('added_at', 'desc').limit(10).get();
     }
     saveActivity(param) {
         return db.collection('activity').add(param);
+    }
+    updateActivity(param) {
+        return db.collection('activity').doc(param.id).set(param);
     }
     // send the message to the Backend
     sendMessage(message) {

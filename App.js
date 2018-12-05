@@ -15,10 +15,14 @@ export default class App extends React.Component {
   };
   async componentDidMount() {
     try {
-      const loggedIn = await AsyncStorage.getItem('loggedIn');
-      if (loggedIn != null) {
-        this.setState({ loggedIn: loggedIn })
-      }
+      const user = await AsyncStorage.getItem('user').then(item => {
+        console.log('item received', item);
+        const { loggedIn } = JSON.parse(item);
+        // if (user != null) {
+          this.setState({ loggedIn: loggedIn })
+        // }
+
+      });
     } catch (error) {
       // Error retrieving data
       console.log('Error', error);
@@ -28,8 +32,16 @@ export default class App extends React.Component {
   setLogin = async (x) => {
     console.log(x);
     try {
-      await AsyncStorage.setItem({ 'user': JSON.stringify(x) });
-      this.setState({ loggedIn: x.loggedIn });
+      // await AsyncStorage.setItem({ 'user' JSON.stringify(x) });
+      await AsyncStorage.setItem('user', JSON.stringify(x))
+        .then(() => {
+          console.log('It was saved successfully');
+          this.setState({ loggedIn: x.loggedIn });
+        })
+        .catch(() => {
+          console.log('There was an error saving')
+        })
+
     } catch (err) {
       console.log(err);
     }

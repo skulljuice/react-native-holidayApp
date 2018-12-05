@@ -19,13 +19,29 @@ import Activity from '../components/chat/activity';
 export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { messages: [], message: '', showActivity: false }
+    this.state = {
+      messages: [],
+      message: '',
+      showActivity: false,
+      messageLoading: false,
+      activities: [],
+      activityLoading: false
+    }
   }
   static navigationOptions = {
     header: null,
   };
 
   componentDidMount() {
+    this.getMsgs();
+    this.getActivities();
+  }
+  handleMessageChange = (message) => {
+    this.setState({ message: message });
+  }
+
+  getMsgs = () => {
+    this.setState({ messageLoading: true })
     backend.loadMessages()
       .then(snapshot => {
         let data = [];
@@ -33,35 +49,71 @@ export default class HomeScreen extends React.Component {
           console.log(doc.id, '=>', doc.data());
           data.push(doc.data());
         });
-        return data;
+        return data.sort((a, b) => (a.added_at > b.added_at) ? 1 : ((b.added_at > a.added_at) ? -1 : 0));
       })
       .then(data => {
-        this.setState({ messages: data });
+        this.setState({ messages: data, messageLoading: false });
       })
       .catch(er => {
         console.log('error', er);
       })
   }
-  handleMessageChange = (message) => {
-    this.setState({ message: message });
-  }
-
-
   handleSendButtonPress = async () => {
-    const { user } = await JSON.parse(AsyncStorage.getItem('user'));
-    let msg = this.state.message;
-    let param = { message: msg, user: user }
-    backend.sendMessage(param).then(r => {
-      console.log('done');
+    const message = this.state;
+    if (message) {
+
+      alert('Message sent!');
+      let user = await AsyncStorage.getItem('user');
+      if (user != null) {
+        let currentUser = JSON.parse(user);
+        let msg = this.state.message;
+        let param = { message: msg, user: currentUser.name, added_at: new Date().getTime() }
+        backend.sendMessage(param).then(r => {
+          console.log('done');
+        })
+        this.setState({ message: '' });
+      }
+      this.getMsgs();
+    }
+  }
+  getActivities = () => {
+    this.setState({ messageLoading: true })
+    backend.loadActivites()
+      .then(snapshot => {
+        let data = [];
+        snapshot.forEach(doc => {
+          console.log(doc.id, '=>', doc.data());
+          data.push(...doc.data(), { id: doc.id });
+        });
+        return data.sort((a, b) => (a.added_at > b.added_at) ? 1 : ((b.added_at > a.added_at) ? -1 : 0));
+      })
+      .then(data => {
+        this.setState({ activities: data, activityLoading: false });
+      })
+      .catch(er => {
+        console.log('error', er);
+      })
+  }
+  handleActivityButtonPress = () => {
+    // this.props.sendMessage(this.props.message)
+    const { showActivity } = this.state;
+    this.setState({ showActivity: !showActivity });
+  }
+  handleActivityVoteUpButtonPress = (current) => {
+    let param = { id: current.id, upvote: current.upvote++, downvote: current.downvote }
+    backend.updateActivity(param).then(res => {
+      this.getActivities();
     })
   }
-  handleAcivityButtonPress = () => {
-    // this.props.sendMessage(this.props.message)
-    this.setState({ showActivity: !showActivity });
+  handleActivityVoteDownButtonPress = (current) => {
+    let param = { id: current.id, upvote: current.upvote, downvote: current.downvote++ }
+    backend.updateActivity(param).then(res => {
+      this.getActivities();
+    })
   }
 
   render() {
-    const { messages } = this.state;
+    const { messages, messageLoading, activities, activityLoading } = this.state;
     // console.log(messages);
     return (
       <View style={styles.container}>
@@ -71,10 +123,35 @@ export default class HomeScreen extends React.Component {
           </View>
           <View >
             {
-              messages && messages.map(message => (
-                <Text>{`${message.name} : ${message.message}`}</Text>
+              messageLoading ? <Text>Loading..</Text> : messages && !messageLoading && messages.map((message, index) => (
+                <Text key={index}>{`${message.user} : ${message.message}`}</Text>
               ))
             }
+          </View>
+          <View>
+
+            {
+              activityLoading ? <Text>Loading..</Text> : activities && !activityLoading && activities.map((item, index) => (
+                <View>
+                  <Text>{item.name}</Text>
+                  <View>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={this.handleActivityVoteUpButtonPress}
+                    // disabled={isButtonDisabled}
+                    >
+                      <Text>Up Vote</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={this.handleActivityVoteDownButtonPress}
+                    // disabled={isButtonDisabled}
+                    >
+                      <Text>Down Vote</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
           </View>
           <View style={styles.containerBox}>
 
@@ -102,7 +179,7 @@ export default class HomeScreen extends React.Component {
             >
               <Text>Add Activity</Text>
             </TouchableOpacity>
-            {this.state.showActivity && <Activity />}
+            {this.state.showActivity && <Activity visible={true} />}
           </View>
         </ScrollView>
 

@@ -134,7 +134,7 @@ export default class HomeScreen extends React.Component {
               ))
             }
           </View>
-          <View>
+          <View style={styles.box}>
 
             {
               activityLoading ? <Text>Loading..</Text> : activities && !activityLoading && activities.map((item, index) => (
@@ -195,6 +195,10 @@ export default class HomeScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  box:{
+    position:"relative",
+    minWidth:"30"
+  },
   containerAct: {
     flex: 1,
     color: 'red',
